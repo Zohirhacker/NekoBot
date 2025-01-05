@@ -1,0 +1,19 @@
+{
+  "ownerNumber": [
+    "212717457920",
+    "212xx",
+    "212xxx",
+    "212xxxx"
+  ],
+  "readme": "Fill in the ownerNumber number according to how many numbers you have, you can also add more numbers, don't forget the comma must be correct so there is no error, install the module using npm i on the panel/vps or yarn on termux",
+  "contact": "212717457920",
+  "botName": "IronKid Ai 💕",
+  "ownerName": "Noureddine",
+  "footer": "تابع صاحب البوت في حسابه تشجيعا له",
+  "sosmed": "https://instagram.com/noureddine_ouafy",
+  "thumbnail": "https://files.catbox.moe/ge94k7.jpg",
+  "music": "https://qu.ax/Ajdr.mp3",
+  "ram": 800,
+  "readme2": "botNumber is the number you want to use as a bot",
+  "botNumber": "212605784394"
+}
