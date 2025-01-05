@@ -6,7 +6,7 @@ module.exports = {
   loading: true,
   async run(m, { sock, Func, Uploader, text, Scraper }) {
     if (!text)
-      throw "*– 乂 Cara Penggunaan*\n> *`--upload`* Untuk upload video ke doodstream\n> *`https://dood.li/xxx`* untuk download video dari doodstream";
+      throw "*– 乂 Cara Penggunaan*\n> *`--upload`* Untuk upload video ke videy\n> *`https://dood.li/xxx`* untuk download video dari doodstream";
     if (m.text.includes("--upload")) {
       let q = m.quoted ? m.quoted : m;
       if (!/video/.test(q.msg.mimetype) || !q.isMedia)

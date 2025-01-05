@@ -14,7 +14,7 @@ module.exports = {
         new RegExp(/https:\/\/\whatsapp.com\/channel\//, "gi"),
         "",
       );
-      let metadata = await sock.newsletterMetadata("invite", id);
+      let metadata = await sock.newsletterMetadata("invite", id.split("/")[0]);
       let cap = `*– 乂 Newsletter - Info*
 > *- Id :* ${metadata.id}
 > *- Nama :* ${metadata.name}

@@ -1,9 +1,9 @@
-const axios = require('axios');
+const axios = require("axios");
 
 class Tiktok {
-   search = async(q) => {
+  search = async (q) => {
     const maxRetries = 10;
-    let attempt = 0; 
+    let attempt = 0;
     let response;
     while (attempt < maxRetries) {
       try {
@@ -28,7 +28,7 @@ class Tiktok {
           data: data,
         };
         response = await axios(config);
-        console.log(JSON.stringify(response.data, null, 2));      
+        console.log(JSON.stringify(response.data, null, 2));
         if (response.data.data) {
           return response.data.data.videos.map((a) => ({
             metadata: {
@@ -59,73 +59,88 @@ class Tiktok {
               watermark: "https://tikwm.com" + a.wmplay,
               audio: "https://tikwm.com" + a.music,
             },
-          }))
+          }));
         } else {
           console.warn("Tidak ada data, mencoba lagi...");
           attempt++;
-          await new Promise(resolve => setTimeout(resolve, 2000)); 
+          await new Promise((resolve) => setTimeout(resolve, 2000));
         }
       } catch (error) {
         console.error("Terjadi kesalahan: ", error.message);
         attempt++;
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }
-     return "Kebanyakan spam ini kasih delay dong"
-   }
-  download = async(url) => {
+    return "Kebanyakan spam ini kasih delay dong";
+  };
+  download = async (url) => {
     return new Promise(async (resolve, reject) => {
-    try {
+      try {
         const encodedParams = new URLSearchParams();
         encodedParams.set("url", url);
         encodedParams.set("hd", "1");
 
-      const response = await axios({
-        method: "POST",
-        url: "https://tikwm.com/api/",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-          Cookie: "current_language=en",
-          "User-Agent":
-            "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36",
-        },
-        data: encodedParams,
-      });
-      const videos = response.data;
-      resolve(videos.data);
-    } catch (error) {
-      reject(error);
-    }
+        const response = await axios({
+          method: "POST",
+          url: "https://tikwm.com/api/",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            Cookie: "current_language=en",
+            "User-Agent":
+              "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/116.0.0.0 Mobile Safari/537.36",
+          },
+          data: encodedParams,
+        });
+        const videos = response.data;
+        resolve(videos.data);
+      } catch (error) {
+        reject(error);
+      }
     });
-   }
+  };
   stalk = async function stalk(nickname) {
-     return new Promise(async(resolve, reject) => {
-     const headers = {
-          "Referer": 'https://countik.com/user/@' + nickname,
-        "User-Agent": require("fake-useragent")()
-    }
-      await axios.get(`https://countik.com/api/exist/${nickname.toLowerCase()}`, { headers })
-     .then(async(a) => {
-         let id = a.data.sec_uid
-         if (!id) reject({
-            msg: "ID tidak ditemukan !"
+    return new Promise(async (resolve, reject) => {
+      const headers = {
+        Referer: "https://countik.com/user/@" + nickname,
+        "User-Agent": require("fake-useragent")(),
+      };
+      await axios
+        .get(`https://countik.com/api/exist/${nickname.toLowerCase()}`, {
+          headers,
         })
-        let { data } = await axios.get(`https://countik.com/api/userinfo?sec_user_id=${id}`, { headers }).catch(e => e.response);
-       if (!data.followerCount) return reject({
-        msg: "Username Tiktok tidak ditemukan !"
-      })
-       resolve({
-           nickname: a.data.nickname,
-           avatar: data.avatarThumb,
-           country: data.country,
-           followers: data.followerCount.toLocaleString(),
-           following: data.followingCount.toLocaleString(),
-           bio: data.signature,
-           heart: data.heartCount.toLocaleString()
-          })
-      }).catch((e) => reject({ msg: "Gagal mendapatkan data  dari Web", error: e.response.data }))
-    })
-  }
+        .then(async (a) => {
+          let id = a.data.sec_uid;
+          if (!id)
+            reject({
+              msg: "ID tidak ditemukan !",
+            });
+          let { data } = await axios
+            .get(`https://countik.com/api/userinfo?sec_user_id=${id}`, {
+              headers,
+            })
+            .catch((e) => e.response);
+          if (!data.followerCount)
+            return reject({
+              msg: "Username Tiktok tidak ditemukan !",
+            });
+          resolve({
+            nickname: a.data.nickname,
+            avatar: data.avatarThumb,
+            country: data.country,
+            followers: data.followerCount.toLocaleString(),
+            following: data.followingCount.toLocaleString(),
+            bio: data.signature,
+            heart: data.heartCount.toLocaleString(),
+          });
+        })
+        .catch((e) =>
+          reject({
+            msg: "Gagal mendapatkan data  dari Web",
+            error: e.response.data,
+          }),
+        );
+    });
+  };
 }
 
-module.exports = new Tiktok()
+module.exports = new Tiktok();

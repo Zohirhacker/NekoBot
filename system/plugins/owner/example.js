@@ -1,22 +1,23 @@
 module.exports = {
-     command: "example",
-     alias: ["exp"],
-     settings: {
-       owner: true
-    },
-    description: "Example Features Bot",
-   async run(m, { text }) {
+  command: "example",
+  alias: ["exp"],
+  settings: {
+    owner: true,
+  },
+  description: "Example Features Bot",
+  async run(m, { text }) {
     let cap = `*– 乂 Example - Code*
-> Pilih type 1 atau 2 Sesuai Dengan kebutuhan anda`    
-   if (!text) return m.reply({
-           poll: {
-            name: cap,
-            values: [`${m.prefix + m.command} 1`, `${m.prefix + m.command} 2`],
-             selectableCount: 1
-         }
+> Pilih type 1 atau 2 Sesuai Dengan kebutuhan anda`;
+    if (!text)
+      return m.reply({
+        poll: {
+          name: cap,
+          values: [`${m.prefix + m.command} 1`, `${m.prefix + m.command} 2`],
+          selectableCount: 1,
+        },
       });
     if (Number(text) === 1) {
-   let code = `
+      let code = `
 class Command {
        constructor() {
        this.command = ""
@@ -31,10 +32,10 @@ class Command {
   }
 }
 
-module.exports = new Command();`
- m.reply(code);
-   } else if (Number(text) === 2) {
-   let code = `
+module.exports = new Command();`;
+      m.reply(code);
+    } else if (Number(text) === 2) {
+      let code = `
 module.exports = {
       command: "",
       alias: [],
@@ -45,14 +46,15 @@ module.exports = {
       async run(m, { sock, Func, Scraper, Uploader, store, text, config }) {
       //do something...
    }
-}`
-  m.reply(code);
-   } else return m.reply({
-           poll: {
-            name: cap,
-            values: [`${m.prefix + m.command} 1`, `${m.prefix + m.command} 2`],
-             selectableCount: 1
-         }
+}`;
+      m.reply(code);
+    } else
+      return m.reply({
+        poll: {
+          name: cap,
+          values: [`${m.prefix + m.command} 1`, `${m.prefix + m.command} 2`],
+          selectableCount: 1,
+        },
       });
-  }
-}
+  },
+};

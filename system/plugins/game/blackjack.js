@@ -285,7 +285,7 @@ const templateBlackjackMessage = (usedPrefix, command, sock, m, blackjack) => {
 
 > *\`${(state === "player_win" ? "You win! 🎉" : state === "dealer_win" ? "Dealer wins. 😔" : state === "draw" ? "Draw. 🤝" : state === "player_blackjack" ? "Blackjack! 🥳" : "Dealer got Blackjack! 😔").toUpperCase()}\`*\n*Bet:*\n- \`\`\`${formatter.format(bet)}\`\`\`\n*Payout:*\n- \`\`\`${formatter.format(payout)}\`\`\`
 `;
-   db.list().user[sock.blackjack[m.cht].idPemain].money += payout;
+      db.list().user[sock.blackjack[m.cht].idPemain].money += payout;
       delete sock.blackjack[m.cht];
       break;
     default:
@@ -308,7 +308,6 @@ Type *\`${m.prefix + m.command} stand\`* to end your turn.`;
   return message;
 };
 
-
 module.exports = {
   command: "blackjack",
   alias: ["bj"],
@@ -318,110 +317,120 @@ module.exports = {
   },
   description: "Permainan Blackjack",
   async run(m, { sock, Func }) {
-  sock.blackjack = sock.blackjack || {};
-  let [aksi, argumen] = m.args;
-  if (typeof db.list().user[m.sender].money === "undefined") {
-     db.list().user[m.sender].money = 0
-  }
-  try {
-    switch (aksi) {
-      case "end":
-        if (sock.blackjack[m.cht]?.idPemain === m.sender) {
-          delete sock.blackjack[m.cht];
-          await m.reply("*Anda keluar dari sesi blackjack.* 👋");
-        } else {
-          await m.reply(
-            "*Tidak ada sesi blackjack yang sedang berlangsung atau Anda bukan pemainnya.*");
-        }
-        break;
-      case "start":
-        if (sock.blackjack[m.cht]) {
-          await m.reply(
-            `*Sesi blackjack sudah berlangsung.* Gunakan *${m.command} end* untuk keluar dari sesi.`);
-        } else {
-          sock.blackjack[m.cht] = new Blackjack(1);
-          sock.blackjack[m.cht].idPemain = m.sender;
-          let betAmount = argumen ? parseInt(argumen) : 1000;
-          sock.blackjack[m.cht].placeBet(betAmount);
-          sock.blackjack[m.cht].start();
-          const table = sock.blackjack[m.cht];
-          const pesanStart = templateBlackjackMessage(
+    sock.blackjack = sock.blackjack || {};
+    let [aksi, argumen] = m.args;
+    if (typeof db.list().user[m.sender].money === "undefined") {
+      db.list().user[m.sender].money = 0;
+    }
+    try {
+      switch (aksi) {
+        case "end":
+          if (sock.blackjack[m.cht]?.idPemain === m.sender) {
+            delete sock.blackjack[m.cht];
+            await m.reply("*Anda keluar dari sesi blackjack.* 👋");
+          } else {
+            await m.reply(
+              "*Tidak ada sesi blackjack yang sedang berlangsung atau Anda bukan pemainnya.*",
+            );
+          }
+          break;
+        case "start":
+          if (sock.blackjack[m.cht]) {
+            await m.reply(
+              `*Sesi blackjack sudah berlangsung.* Gunakan *${m.command} end* untuk keluar dari sesi.`,
+            );
+          } else {
+            sock.blackjack[m.cht] = new Blackjack(1);
+            sock.blackjack[m.cht].idPemain = m.sender;
+            let betAmount = argumen ? parseInt(argumen) : 1000;
+            sock.blackjack[m.cht].placeBet(betAmount);
+            sock.blackjack[m.cht].start();
+            const table = sock.blackjack[m.cht];
+            const pesanStart = templateBlackjackMessage(
+              m.prefix,
+              m.command,
+              sock,
+              m,
+              table,
+            );
+            await m.reply(pesanStart);
+          }
+          break;
+
+        case "hit":
+          if (
+            !sock.blackjack[m.cht] ||
+            sock.blackjack[m.cht]?.idPemain !== m.sender
+          ) {
+            await m.reply(
+              "*Anda tidak sedang bermain blackjack atau bukan pemainnya.*",
+            );
+            break;
+          }
+          sock.blackjack[m.cht].hit();
+          const tableHit = sock.blackjack[m.cht];
+          const pesanHit = templateBlackjackMessage(
             m.prefix,
             m.command,
             sock,
             m,
-            table,
+            tableHit,
           );
-          await m.reply(pesanStart);
-        }
-        break;
-
-      case "hit":
-        if (
-          !sock.blackjack[m.cht] ||
-          sock.blackjack[m.cht]?.idPemain !== m.sender
-        ) {
-          await m.reply("*Anda tidak sedang bermain blackjack atau bukan pemainnya.*");
+          await m.reply(pesanHit);
           break;
-        }
-        sock.blackjack[m.cht].hit();
-        const tableHit = sock.blackjack[m.cht];
-        const pesanHit = templateBlackjackMessage(
-          m.prefix,
-          m.command,
-          sock,
-          m,
-          tableHit,
-        );
-        await m.reply(pesanHit);
-        break;
 
-      case "stand":
-        if (
-          !sock.blackjack[m.cht] ||
-          sock.blackjack[m.cht]?.idPemain !== m.sender
-        ) {
-          await m.reply("*Anda tidak sedang bermain blackjack atau bukan pemainnya.*");
+        case "stand":
+          if (
+            !sock.blackjack[m.cht] ||
+            sock.blackjack[m.cht]?.idPemain !== m.sender
+          ) {
+            await m.reply(
+              "*Anda tidak sedang bermain blackjack atau bukan pemainnya.*",
+            );
+            break;
+          }
+          sock.blackjack[m.cht].stand();
+          const tableStand = sock.blackjack[m.cht];
+          const pesanStand = templateBlackjackMessage(
+            m.prefix,
+            m.command,
+            sock,
+            m,
+            tableStand,
+          );
+          await m.reply(pesanStand);
           break;
-        }
-        sock.blackjack[m.cht].stand();
-        const tableStand = sock.blackjack[m.cht];
-        const pesanStand = templateBlackjackMessage(
-          m.prefix,
-          m.command,
-          sock,
-          m,
-          tableStand,
-        );
-        await m.reply(pesanStand);
-        break;
 
-      case "double":
-        if (
-          !sock.blackjack[m.cht] ||
-          sock.blackjack[m.cht]?.idPemain !== m.sender
-        ) {
-          await m.reply("*Anda tidak sedang bermain blackjack atau bukan pemainnya.*");
+        case "double":
+          if (
+            !sock.blackjack[m.cht] ||
+            sock.blackjack[m.cht]?.idPemain !== m.sender
+          ) {
+            await m.reply(
+              "*Anda tidak sedang bermain blackjack atau bukan pemainnya.*",
+            );
+            break;
+          }
+          sock.blackjack[m.cht].doubleDown();
+          const tableDouble = sock.blackjack[m.cht];
+          const pesanDouble = templateBlackjackMessage(
+            m.prefix,
+            m.command,
+            sock,
+            m,
+            tableDouble,
+          );
+          await m.reply(pesanDouble);
           break;
-        }
-        sock.blackjack[m.cht].doubleDown();
-        const tableDouble = sock.blackjack[m.cht];
-        const pesanDouble = templateBlackjackMessage(
-          m.prefix,
-          m.command,
-          sock,
-          m,
-          tableDouble,
-        );
-        await m.reply(pesanDouble);
-        break;
 
-      default:
-        await m.reply(`*Perintah tidak valid.*\nGunakan *${m.prefix + m.command} start* untuk memulai sesi blackjack.`);
-        break;
-    }
-  } catch (err) {
+        default:
+          await m.reply(
+            `*Perintah tidak valid.*\nGunakan *${m.prefix + m.command} start* untuk memulai sesi blackjack.`,
+          );
+          break;
+      }
+    } catch (err) {
       return m.reply(Func.jsonFormat(err));
-  }
- }
+    }
+  },
 };

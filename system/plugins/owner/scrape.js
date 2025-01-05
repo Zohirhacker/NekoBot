@@ -1,4 +1,5 @@
 const fs = require("node:fs");
+const beauty = require("js-beautify");
 
 module.exports = {
   command: "scrape",
@@ -44,7 +45,7 @@ module.exports = {
       let input = m.text.replace("--add", "").trim();
       try {
         let file = scraper.dir + "/" + input + ".js";
-        fs.writeFileSync(file.trim(), m.quoted.body);
+        fs.writeFileSync(file.trim(), await beauty(m.quoted.body));
         m.reply("> Berhasil Menyimpan scrape : " + input);
       } catch (e) {
         m.reply(`> Gagal menyimpan scrape, coba lagi`);

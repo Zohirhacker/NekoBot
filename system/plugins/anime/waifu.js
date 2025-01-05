@@ -11,15 +11,6 @@ const cmd = {
     m.reply({
       image: json.data,
       caption: `> *- Random :* [ ${m.command} ]`,
-      footer: config.name,
-      buttons: [{
-          buttonId: ".waifu",
-          buttonText: {
-            displayText: "🖼️ Gambar selanjutnya"
-         }
-       }],
-       viewOnce: true,
-       headerType: 6,
     });
   },
 };

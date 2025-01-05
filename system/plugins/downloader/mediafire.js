@@ -18,6 +18,7 @@ module.exports = {
     let buffer = await fetch(data.download).then(async (a) =>
       Buffer.from(await a.arrayBuffer()),
     );
+    let size = Func.formatSize(buffer.length);
     let limit = Func.sizeLimit(data.size, db.list().settings.max_upload);
     if (limit.oversize)
       throw `Maaf file yang kamu download telah melebihi batas ukuran file yang ditentukan *( ${size} )*, upgrade status mu ke premium agar dapat mendownload file hingga *1GB!*`;

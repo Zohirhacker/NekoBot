@@ -1,36 +1,69 @@
+/* Features Play YouTube
+ * Base API : https://axeel.my.id/docs
+ * Code by : AxellNetwork
+ */
+
+const yts = require("yt-search");
 const axios = require("axios");
 
 module.exports = {
   command: "ytmp3",
-  alias: ["yta", "ytaudio"],
+  alias: ["play", "yta"],
   category: ["downloader"],
-  description: "Download audio dari link YouTube",
   settings: {
     limit: true,
   },
-  loading: true,
-  async run(m, { sock, Func, Scraper, config, text }) {
-    if (!/youtube.com|youtu.be/.test(text) || !text)
-      throw "> Masukan Link YouTube nya";
-    let data = await Scraper.YouTube.mp3(text);
-    let cap = `*– 乂 YouTube - Audio*\n`;
+  description: "Mencari audio Dari YouTube",
+  async run(m, { sock, Func, text }) {
+    if (!text) return m.reply("> Masukkan text nya");
+    m.reply("> Tunggu sebentar");
+    let isUrl = Func.isUrl(text);
+    let txt = "";
+    if (isUrl) {
+      txt = isUrl[0];
+    } else {
+      txt = (await yts(text)).videos.getRandom().url;
+    }
+    let { data } = await axios
+      .get("https://axeel.my.id/api/download/audio?url=" + txt, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+      })
+      .catch((e) => e.response);
+    if (!data.metadata) throw Func.jsonFormat(data);
+    data.metadata.thumbnail = data.metadata.thumbnail.url;
+    let cap = "*– 乂 YouTube - play*\n";
     cap += Object.entries(data.metadata)
       .map(([a, b]) => `> *- ${a.capitalize()} :* ${b}`)
       .join("\n");
-    let size = await Func.formatSize(data.download.length);
-    let limit = Func.sizeLimit(size, db.list().settings.max_upload);
-    if (limit.oversize)
-      throw `> Gagal mengunduh audio karena telah ukuran file untuk pengguna gratis *( ${size} )*, upgrade status mu ke premium agar dapat mengunduh audio hingga *1GB* !`;
-    m.reply({
-      image: {
-        url: data.metadata.thumbnail,
-      },
-      caption: cap,
-    }).then((a) => {
-      m.reply({
-        audio: data.download,
-        mimetype: "audio/mpeg",
+    cap += "\n\n© Simple WhatsApp bot by AxellNetwork";
+
+    sock
+      .sendMessage(
+        m.cht,
+        {
+          image: {
+            url: data.metadata.thumbnail,
+          },
+          caption: cap,
+        },
+        {
+          quoted: m,
+        },
+      )
+      .then((a) => {
+        sock.sendMessage(
+          m.cht,
+          {
+            audio: data.downloads,
+            mimetype: "audio/mpeg",
+          },
+          {
+            quoted: a,
+          },
+        );
       });
-    });
   },
 };

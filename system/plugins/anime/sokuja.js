@@ -1,24 +1,21 @@
-// Singkat, padat, mantap
-// Makasih syaii sudah mau bantuin scrapein ini :v
-
 module.exports = {
-  command: "samehadaku",
+  command: "sokuja",
   alias: [],
   category: ["anime"],
   settigs: {
     limit: true,
   },
-  description: "Cek Anime terbaru di samehadaku",
+  description: "Cek Anime terbaru di sokuja",
   async run(m, { sock, Scraper, text, Func, config }) {
-    let latest = await Scraper.samehadaku.latest();
+    let latest = await Scraper.sokuja.latest();
     let cap = `*– 乂 Cara penggunaan*
 > Masukan query untuk mencari anime
 > Masukan link untuk mendapatkan data anime
 
 *– 乂 Contoh - penggunaan*
-> ${m.prefix + m.command} make heroine
-> ${m.prefix + m.command} https://samehadaku.email/anime/make-heroine-ga-oosugiru/
-> ${m.prefix + m.command} https://samehadaku.email/make-heroine-ga-oosugiru-episode-12/
+> ${m.prefix + m.command} oshi no ko
+> ${m.prefix + m.command} https://x1.sokuja.uk/anime/oshi-no-ko-subtitle-indonesia/
+> ${m.prefix + m.command} https://x1.sokuja.uk/end-oshi-no-ko-episode-11-subtitle-indonesia/
 
 *– 乂 Berikut ${latest.length} anime yang rilis hari ini*
 
@@ -29,31 +26,11 @@ ${latest
       .join("\n"),
   )
   .join("\n\n")}`;
-    if (!text)
-      return sock.sendButtonMessage(
-        m.cht,
-        [
-          {
-            type: "list",
-            title: "🎦 Tab Here",
-            value: [
-              {
-                headers: "– 乂 Anime - Latest",
-                rows: latest.map((a, i) => ({
-                  title: `${i + 1}. ${a.title}`,
-                  command: `${m.prefix + m.command} ${a.url}`,
-                })),
-              },
-            ],
-          },
-        ],
-        m,
-        { body: cap, footer: config.name },
-      );
-    if (Func.isUrl(text) && /samehadaku./.test(text)) {
+    if (!text) throw cap;
+    if (Func.isUrl(text) && /sokuja./.test(text)) {
       if (/anime\//.test(text)) {
-        let data = await Scraper.samehadaku.detail(text);
-        let cap = `*– Anime - Detail*\n`;
+        let data = await Scraper.sokuja.detail(text);
+        let cap = `*– 乂 Sokuja - Detail*\n`;
         cap += Object.entries(data.metadata)
           .map(([a, b]) => `> *- ${a} :* ${b}`)
           .join("\n");
@@ -68,9 +45,9 @@ ${latest
           caption: cap,
         });
       } else {
-        let data = await Scraper.samehadaku.episode(text);
-        let quality = Object.keys(data.download);
-        let cap = "*– 乂 Anime - Episode*\n";
+        let data = await Scraper.sokuja.episode(text);
+        let quality = Object.keys(data.downloads);
+        let cap = "*– 乂 Sokuja - Episode*\n";
         cap += Object.entries(data.metadata)
           .map(
             ([a, b]) =>
@@ -81,8 +58,8 @@ ${latest
           cap += "\n\n*– 乂 Download - Episode*\n";
           for (let i of quality) {
             cap += `> *- Download ${i}*\n`;
-            cap += data.download[i]
-              .map((a) => `> *- Source :* ${a.source}\n> *- Url :* ${a.url}`)
+            cap += Object.entries(data.downloads[i])
+              .map(([a, b]) => `> *- ${a.capitalize()} :* ${b}`)
               .join("\n");
             cap += "\n\n";
           }
@@ -92,9 +69,9 @@ ${latest
         m.reply(cap);
       }
     } else {
-      let data = await Scraper.samehadaku.search(text);
+      let data = await Scraper.sokuja.search(text);
       if (data.length === 0) throw "> Anime tidak ditemukan";
-      let cap = "*– 乂 Anime - Search*\n";
+      let cap = "*– 乂 Sokuja - Search*\n";
       cap += data
         .map((a) =>
           Object.entries(a)
